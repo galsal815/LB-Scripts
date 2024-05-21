@@ -9,7 +9,7 @@ def list_executable_files_by_name(directory):
             filename = os.path.basename(file)
             if len(filename) >= 12 and filename[-4:] == '.txt':
                 permissions_str = filename[-12:-4]
-                if 'x' in permissions_str[1::3]:  # Check the 'x' bits in the permission string
+                if 'x' in permissions_str[1::3]:
                     executable_files.append(os.path.join(root, file))
     return executable_files
 
