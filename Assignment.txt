@@ -1,0 +1,47 @@
+Assignment #1
+Part 1: Python
+1.	Linux file permissions - introduction
+a.	See: https://www.linuxfoundation.org/blog/blog/classic-sysadmin-understanding-linux-file-permissions
+
+2.	Generate files for all permission permutations
+a.	Write a python script name gen_files.py, to create (in a directory) one file for each possible permission. First file should have permission 000, second file 001, up to 777 for last file (there should be 2^9 = 512 files in total).
+b.	The file name should be the permissions as presented when listing files with "ls -l" command.  For example: rw_rw_rw.txt for file with permissions 666, rwxrwxrwx.txt for file with permissions 777. 
+c.	The directory should be passed as an input parameter to the program.
+
+3.	Generate random files
+a.	Extend the script written in previous section. Add a script parameter "-r N" where N is the number of files to generate. 
+b.	If the -r option is used, the script will generate N files as above. For each file, the permission mask will be random. File name should be file_index(0..N-1) and then permissions as above. For example: 9998rw_r__rwx.txt. Use the python random module.
+
+4.	Test for executable files
+a.	Write a python script to list executable files. A file is executable if it can be executed by owning user, group or all users. The script should accept the directory written to by script above. Use -r 10000 (10000 random files).
+b.	Implement the script in two methods:
+i.	Using python os library to read file permissions.
+ii.	Using the file name to determine the file permissions.  
+c.	The script should print out the matching files. 
+d.	Extend the script to search recursively in a directory, using the python glob module.
+e.	Extend script so that it counts the number of files with each mask (umask). as we have 512 possible permissions and 10000 files, this is ~ 20 files per mask. Print the mask with maximum files and mask with minimum files. 
+ 
+Part 2: Hardening bash script
+5.	Introduction: The following text describes the CIS rule for hardening a linux server, so there are no files which can be written by any user. 
+6.1.9 Ensure no world writable files exist (Automated) 
+Profile Applicability: 
+• Level 1 - Server 
+• Level 1 - Workstation 
+Description: 
+Unix-based systems support variable settings to control access to files. World writable files are the least secure. See the chmod(2) man page for more information. 
+Rationale: 
+Data in world-writable files can be modified and compromised by any user on the system. World writable files may also indicate an incorrectly written script or program that could potentially be the cause of a larger compromise to the system's integrity. 
+Audit: 
+Run the following command and verify no files are returned: 
+# df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm -0002 
+The command above only searches local filesystems, there may still be compromised items on network mounted partitions. Additionally the --local option to df is not universal to all versions, it can be omitted to search all filesystems on a system including network mounted filesystems or the following command can be run manually for each partition: 
+# find <partition> -xdev -type f -perm -0002 
+Remediation: 
+Removing write access for the "other" category ( chmod o-w <filename> ) is advisable, but always consult relevant vendor documentation to avoid breaking any application dependencies on a given file.
+6.	Test the command used for audit by running it on the folder you generated in the python script in part 1.  
+ df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm -0002 
+
+Explain (in the interview, no need to write answer) how this command works, the different sub commands (df, awk, xargs, find, …) and how the | (pipes) work.  
+
+7.	Write a bash script that generates N files, similar to "3. Generate random files" in python above
+a.	The file names should be 0.txt, 1.txt, … (no need for rwx.. in file name)
